@@ -347,6 +347,8 @@ class Sac:
     def Afficher():
         pass
     
+#class Fusil
+#famas=1, glock=2, awap=3 bazooka=4, soin=5, shield=6
 
 class Balle:  # La classe balle est une classe enfant de la classe Player. Elle hérite donc de ses méthodes et valeurs
     def __init__(self, posX, posY, vitesse, direction, arete, type_balle):
