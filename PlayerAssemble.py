@@ -66,242 +66,103 @@ class Player:
             int: position y
         """
         return self.posY
-        
-    def distance(self,P1,P2):
-        return sqrt((P1[0]-P2[0])**2+(P1[1]-P2[1])**2)
 
-    def distanceJoueurNoeud(self):
-        if self.arete!=None:
-            if self.direction == True:
-                distanceJN = sqrt((self.arete.get_sommet2().get_x()-self.posX)**2+(self.arete.get_sommet2().get_y()-self.posY)**2)
-            else:
-                distanceJN = sqrt((self.arete.get_sommet1().get_x()-self.posX)**2+(self.arete.get_sommet1().get_y()-self.posY)**2)
-        else:
-            distanceJN=-1.0
-        return distanceJN
-
-    def deplacement(self):
-        distance = self.distanceJoueurNoeud()
-        if distance < 1.0 and distance>0:#on approche sufisemment d'un noeud: on rentre dedans
-            if self.direction == True:
-                self.noeud = self.arete.get_sommet2()
-                self.posX=self.noeud.get_x()
-                self.posY=self.noeud.get_y()
-                self.arete=None
-            else :
-                self.noeud = self.arete.get_sommet1()
-                self.posX=self.noeud.get_x()
-                self.posY=self.noeud.get_y()
-                self.arete=None
-        elif distance==-1:#on est dans un noeud et il faut choisir quelle arete prendre maintenant
-            self.arete=self.noeud.aretes[random.randint(0,len(self.noeud.aretes)-1)]#on choisit le premier pour l'instant, à modifier...
-            self.noeud=None #on sort du noeud
-        else: #On est dans une arete et on avance dedans à la vitesse
-            if self.direction == True:
-                if self.arete.get_longueur()==0:
-                    self.posX = self.posX+1
-                    self.posY = self.posY+1
-                else:
-                    self.posX=self.posX+(((self.arete.get_sommet2().get_x()-self.arete.get_sommet1().get_x())/self.arete.get_longueur())*self.vitesse)
-                    self.posY=self.posY+(((self.arete.get_sommet2().get_y()-self.arete.get_sommet1().get_y())/self.arete.get_longueur())*self.vitesse)
-            else:
-                if self.arete.get_longueur()==0:
-                    self.posX = self.posX+1
-                    self.posY = self.posY+1
-                else:
-                    self.posX=self.posX+((self.arete.get_sommet1().get_x()-self.arete.get_sommet2().get_x())/self.arete.get_longueur())*self.vitesse
-                    self.posY=self.posY+((self.arete.get_sommet1().get_y()-self.arete.get_sommet2().get_y())/self.arete.get_longueur())*self.vitesse
-
-    def gestionclavier(self):
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT] and self.arete== None:#On est dans un noeud et on veut prendre une arete
-            self.arete = self.noeud.aretes[0]  # on choisit le premier pour l'instant, à modifier...
-            self.noeud=None
-            self.deplacement()
-        if keys[pygame.K_RIGHT]and self.arete== None:
-            self.arete = self.noeud.aretes[-1]  # On  est dans un noeud on choisit le dernier pour l'instant, à modifier...
-            self.noeud=None
-            #self.deplacement()
-        if keys[pygame.K_UP] and self.noeud== None:
-            self.direction=True
-            self.deplacement()
-        if keys[pygame.K_DOWN] and self.noeud == None:
-            self.direction = False
-            self.deplacement()
-
-    def variationpv(self, Degat):
-        self.Pv-=self.random.rand()*Degat
-        if self.Pv<=0:
-            #delete player
-            self.vie=False
-
-    def blitRotate(self,surf, image, pos, originPos, angle):
-        w, h = image.get_size()
-        box = [pygame.math.Vector2(p) for p in [(0, 0), (w, 0), (w, -h), (0, -h)]]
-        box_rotate = [p.rotate(angle) for p in box]
-        min_box = (min(box_rotate, key=lambda p: p[0])[0], min(box_rotate, key=lambda p: p[1])[1])
-        max_box = (max(box_rotate, key=lambda p: p[0])[0], max(box_rotate, key=lambda p: p[1])[1])
-        pivot = pygame.math.Vector2(originPos[0], -originPos[1])
-        pivot_rotate = pivot.rotate(angle)
-        pivot_move = pivot_rotate - pivot
-        origin = (
-        pos[0] - originPos[0] + min_box[0] - pivot_move[0], pos[1] - originPos[1] - max_box[1] + pivot_move[1])
-        rotated_image = pygame.transform.rotate(image, angle)
-        surf.blit(rotated_image, origin)
-
-
-    def afficheur(self,labyrin,ListeNoeud,ListeJoueur):
+    def affi2d(self,labyrin,ListeNoeud,ListeJoueur):
+        """ Viewer qui permet de voir le labyrinthe autour du joueur vu du dessus"""
         os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (50,50)
+        xfen=800
+        yfen=600
+        perx=400
+        pery=300
+        loupe=4
         pygame.init()
-        #Ouverture de la fenêtre
-        xfen=1400
-        yfen=1000
-        cont=True
-        #Ouverture de la fenêtre
+        #Ouverture de la fenÃªtre
         fenetre = pygame.display.set_mode((xfen, yfen))
-        #Chargement des images
-        perso = pygame.image.load("perso.png").convert()
-        perso = pygame.transform.scale(perso, (50, 80))
-        perso.set_colorkey((0, 0, 0))
-        mur = pygame.image.load("mur4.bmp").convert()
-        mur = pygame.transform.scale(mur, (200, 50))
-        mur.set_colorkey((255, 255, 255))
-        sol = pygame.image.load("sol.bmp").convert()
-        sol = pygame.transform.scale(sol, (1200, 1200))
-        sol.set_colorkey((255, 255, 255))
-        salle = pygame.image.load("salle.png").convert()
-        salle = pygame.transform.scale(salle, (400,300))
-        salle.set_colorkey((0, 0, 0))
         masque = pygame.image.load("masque.bmp").convert()
         masque = pygame.transform.scale(masque, (800, 600))
         masque.set_colorkey((255, 255, 255))
-        alpha = 0
-        perx=375
-        pery=260
-        while cont:
-        #Ouverture de la fenêtre
-            fenetre.fill((0, 0, 0))
-            self.gestionclavier()
-            distance = self.distanceJoueurNoeud()
-            if self.noeud==None:#On est dans une arete, on l'affiche
-                #on récupère l'angle de l'arete
-                alpha=self.arete.get_angle()
-                #on affiche le fond
-                fenetre.blit(sol,(-600+perx+self.posX-self.arete.get_sommet1().get_x(),-600+pery+self.posY-self.arete.get_sommet1().get_y()))
-                #on affiche le mur du fond
-                #on calcul l'endroit pour le premier mur
-                w, h = mur.get_size()
-                #pos = (fenetre.get_width() / 2-70+self.posX-self.arete.get_sommet2().get_x(), fenetre.get_height() / 2-70+self.posY-self.arete.get_sommet2().get_y())
-                #on calcule v vecteur directeur de l'arete de norme 1
-                v=((self.arete.get_sommet2().get_x()-self.arete.get_sommet1().get_x())/self.arete.get_longueur(),(self.arete.get_sommet2().get_y()-self.arete.get_sommet1().get_y())/self.arete.get_longueur())
-                if v[0]<0:
-                    u=(-10*v[1],10*v[0])#vecteur orthogonal à u vers le haut
-                else:
-                    u=(10*v[1],-10*v[0])#vecteur orthogonal à u vers le haut
-                #On affiche les noeuds
-                fenetre.blit(salle, (200+self.posX-self.arete.get_sommet2().get_x(), 150+self.posY-self.arete.get_sommet2().get_y()))
-                fenetre.blit(salle, (200+self.posX-self.arete.get_sommet1().get_x(), 150+self.posY-self.arete.get_sommet1().get_y()))
+        perso = pygame.image.load("perso.png").convert()
+        perso = pygame.transform.scale(perso, (20, 20))
+        perso.set_colorkey((0, 0, 0))
 
-                #on affiche le mur arrière
-                #on recherche la valeur de k pour laquelle on peut voir le mur
-                #while self.distance((self.arete.get_sommet1().get_x()+(k+1)*(w-10)*v[0],self.arete.get_sommet1().get_y()+(k+1)*(w-10)*v[1]),(self.posX,self.posY))>400:
-                 #   k=k+1
-                k=0
-                while self.distance((self.arete.get_sommet1().get_x()+k*(w-20)*v[0],self.arete.get_sommet1().get_y()+k*(w-20)*v[1]),(self.posX,self.posY))<600:
-                    pos=(perx+self.posX-(arete.get_sommet1().get_x()+(k-0.5)*(w-20)*v[0]+u[0]),self.posY+pery-(self.arete.get_sommet1().get_y()+(k-0.5)*(w-20)*v[1]+u[1]))
-                    self.blitRotate(fenetre, mur, pos, (w / 2, h / 2), alpha)
-                    k=k+1
-                #on affiche le personnage
-                fenetre.blit(perso, (perx, pery))
-                #on affiche le mur du devant
-                k=0
-                while self.distance((self.arete.get_sommet1().get_x()+k*(w-20)*v[0],self.arete.get_sommet1().get_y()+k*(w-20)*v[1]),(self.posX,self.posY))<600:
-                    pos=(perx+self.posX-(arete.get_sommet1().get_x()+(k-0.5)*(w-20)*v[0]-u[0]),self.posY+pery-(self.arete.get_sommet1().get_y()+(k-0.5)*(w-20)*v[1]-u[1]))
-                    self.blitRotate(fenetre, mur, pos, (w / 2, h / 2), alpha)
-                    k=k+1
-
+        cont=True
+        while cont:#boucle
+            if self.noeud == None:  # On est dans une arete, on l'affiche
+                fenetre.fill((0,0,0))
+                couleur=(150, 0, 100)
+                for arete in labyrin:
+                    pygame.draw.line(fenetre,couleur,(int(perx+(self.posX-arete.get_sommet1().get_x())*loupe), int(pery+(self.posY-arete.get_sommet1().get_y())*loupe)),(int(perx+(self.posX-arete.get_sommet2().get_x())*loupe),int(pery+(self.posY- arete.get_sommet2().get_y())*loupe)), 20)
+                for sommet in ListeNoeud:
+                    pygame.draw.circle(fenetre, (0, 0, 255), (int(perx+(self.posX-sommet.get_x())*loupe),int( pery+(self.posY-sommet.get_y())*loupe)), 5)
+                for joueur in ListeJoueur:
+                    fenetre.blit(perso, (perx-10, pery-10))
+                keys = pygame.key.get_pressed()
+                if keys[pygame.K_UP]:
+                    self.direction = True
+                    self.deplacement()
+                if keys[pygame.K_DOWN]:
+                    self.direction = False
+                    self.deplacement()
             else: #On est dans un noeud, on l'affiche
                 #On affiche toutes les sorties avec des flèches
                 choix=True
-                xd=400
-                yd=300
                 choixarete=self.noeud.get_aretes()[0]
                 indice=0
                 while choix:#Boucle tant que on a pas choisit l'arete
-                    fenetre.blit(salle, (200, 150))
-                    for arete in self.noeud.get_aretes() :
-                        if arete.get_sommet2()==self.noeud and arete.get_longueur()>0.1:
-                            flechex = (((arete.get_sommet1().get_x() - arete.get_sommet2().get_x()) / arete.get_longueur()) * 150)
-                            flechey = (((arete.get_sommet1().get_y() - arete.get_sommet2().get_y()) / arete.get_longueur()) * 150)
-                        else:
-                            if arete.get_longueur()>0.1:
-                                flechex = ((arete.get_sommet2().get_x() - arete.get_sommet1().get_x()) / arete.get_longueur()) * 150
-                                flechey = ((arete.get_sommet2().get_y() - arete.get_sommet1().get_y()) / arete.get_longueur()) * 150
-                                #On trace la fleche
-                        if arete==choixarete:
-                            pygame.draw.polygon(fenetre, (255, 0, 0),((xd+0, yd+00), (xd+flechex, yd+flechey), (xd-flechey*20/150, yd+flechex*20/150),(xd+0,yd+0)))
-                        else:
-                            pygame.draw.polygon(fenetre, (0, 255, 0),((xd+0, yd+00), (xd+flechex, yd+flechey), (xd-flechey*20/150, yd+flechex*20/150),(xd+0,yd+0)))
-                    #on affiche le joueur"""
-                    fenetre.blit(perso, (375, 260))
-                    #On attend le choix du joueur pour la direction à prendre
-                    #gauche droite choix de l'arete, espace pour entrer dans l'arete
+                    # On attend le choix du joueur pour la direction à prendre
+                    # gauche droite choix de l'arete, espace pour entrer dans l'arete
+                    fenetre.fill((0, 0, 0))
                     keys = pygame.key.get_pressed()
                     if keys[pygame.K_LEFT]:
-                        if indice <len(self.noeud.get_aretes())-1:
-                            if self.noeud.get_aretes()[indice + 1].get_longeur()>0.01:
-                                choixarete = self.noeud.get_aretes()[indice+1]
-                                indice+=1
+                        if indice < len(self.noeud.get_aretes()) - 1:
+                            if self.noeud.get_aretes()[indice + 1].get_longeur() > 0.01:
+                                choixarete = self.noeud.get_aretes()[indice + 1]
+                                indice += 1
                     if keys[pygame.K_RIGHT]:
-                        if indice >0:
-                            if self.noeud.get_aretes()[indice - 1].get_longeur()>0.01:
-                                choixarete = self.noeud.get_aretes()[indice-1]
-                                indice-=1
-
-                    if keys[pygame.K_SPACE] :
-                        choix=False #On rentre dans l'arete choisie
-                        self.noeud=None
-                        self.arete=choixarete
-                    fenetre.blit(masque, (0, 0))
-                    pygame.draw.rect(fenetre, (0, 0, 0), (800, 600, xfen, yfen))
+                        if indice > 0:
+                            if self.noeud.get_aretes()[indice - 1].get_longeur() > 0.01:
+                                choixarete = self.noeud.get_aretes()[indice - 1]
+                                indice -= 1
+                    if keys[pygame.K_SPACE]:
+                        choix = False  # On rentre dans l'arete choisie
+                        self.arete = choixarete
+                        if self.noeud==self.arete.get_sommet1():
+                            self.direction= True
+                        else:
+                            self.direction =False
+                        self.noeud = None
                     for arete in labyrin:
-                        pygame.draw.line(fenetre, (0, 0, 100),
-                                         (800 + arete.get_sommet1().get_x(), 400 + arete.get_sommet1().get_y()),
-                                         (800 + arete.get_sommet2().get_x(), 400 + arete.get_sommet2().get_y()), 6)
+                        if arete!=choixarete:
+                            couleur = (150, 0, 100)
+                            pygame.draw.line(fenetre,couleur,(int(perx+(self.posX-arete.get_sommet1().get_x())*loupe), int(pery+(self.posY-arete.get_sommet1().get_y())*loupe)),(int(perx+(self.posX-arete.get_sommet2().get_x())*loupe),int(pery+(self.posY- arete.get_sommet2().get_y())*loupe)), 20)
+
+                    arete=choixarete
+                    couleur = (0, 0, 150)
+                    pygame.draw.line(fenetre,couleur,(int(perx+(self.posX-arete.get_sommet1().get_x())*loupe), int(pery+(self.posY-arete.get_sommet1().get_y())*loupe)),(int(perx+(self.posX-arete.get_sommet2().get_x())*loupe),int(pery+(self.posY- arete.get_sommet2().get_y())*loupe)), 20)
                     for sommet in ListeNoeud:
-                        pygame.draw.circle(fenetre, (0, 0, 255), (800 + sommet.get_x(), 400 + sommet.get_y()), 5)
+                        pygame.draw.circle(fenetre, (0, 0, 255), (int(perx+(self.posX-sommet.get_x())*loupe),int( pery+(self.posY-sommet.get_y())*loupe)), 5)
                     for joueur in ListeJoueur:
-                        pygame.draw.circle(fenetre, (255, 255, 255),
-                                           (800 + int(joueur.get_x()), 400 + int(joueur.get_y())), 5)
+                        fenetre.blit(perso, (perx-10, pery-10))
+                    fenetre.blit(masque, (0, 0))
                     pygame.display.flip()
-                    time.sleep(0.050)
+                    time.sleep(0.1)
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
                             cont=False
                             choix=False
 
-        #on affiche le masque
-            fenetre.blit(masque, (0, 0))
-            pygame.draw.rect(fenetre, (0, 0, 0), (800, 600, xfen, yfen))
-            pygame.draw.rect(fenetre, (0, 0, 0), (800, 0, xfen, 600))
-            pygame.draw.rect(fenetre, (0, 0, 0), (0, 600, 800, yfen))
-            for arete in labyrin:
-                pygame.draw.line(fenetre, (0, 0, 100),
-                             (800 + arete.get_sommet1().get_x(), 400 + arete.get_sommet1().get_y()),
-                             (800 + arete.get_sommet2().get_x(), 400 + arete.get_sommet2().get_y()), 6)
-            for sommet in ListeNoeud:
-                pygame.draw.circle(fenetre, (0, 0, 255), (800 + sommet.get_x(), 400 + sommet.get_y()), 5)
-            for joueur in ListeJoueur:
-                pygame.draw.circle(fenetre, (255, 255, 255),
-                               (800 + int(joueur.get_x()), 400 + int(joueur.get_y())), 5)
             fenetre.blit(masque, (0, 0))
             pygame.display.flip()
+            time.sleep(0.01)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     cont=False
         pygame.quit()
 
 
+
+   
+   
 class Sac:
     def __init__(self,taille_sac,plein):
         self.taille_sac = taille_sac
