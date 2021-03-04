@@ -99,3 +99,4 @@ objets = ["", "", "", "", "pistolet", "couteau", "bombe", "bandage"]
 # test Mr Laporte 
 # test de Jordan 
 #test de Tanguy
+# test de Rémi
