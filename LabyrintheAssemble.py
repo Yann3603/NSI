@@ -138,3 +138,5 @@ class Coffre:
 
     def add_objets(self, objets):
         self.objets.append(objets)
+
+# test Lucas
