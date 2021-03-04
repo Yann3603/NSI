@@ -41,6 +41,8 @@ class Noeud:
         """
         self.aretes.append(nouveau)
 
+    def set_aretes(self,aretes):
+        self.aretes=aretes
 
     def set_x(self, posx):
         """Setter de la position x du noeud.
