@@ -34,23 +34,29 @@ class Jeu:
         for i in range(self.nbnoeud): #On crÃ©e nbnoeud noeuds
             x=randint(0,Dimplayerfloor)
             y=randint(0,Dimplayerfloor)
-            coffre=Coffre()
             #if x not in self.ListeNoeud:#on teste si ces coordonnÃ©es ne sont pas dÃ©jÃ  utilisÃ©es
-            self.ListeNoeud.append(Noeud(x,y,coffre))
+            self.ListeNoeud.append(Noeud(x,y))
         #On crÃ©e nbarete aretes et on mets Ã  jour les noeuds
         for i in range(self.nbarete):
             j,k=randint(0,9),randint(0,9)
             if abs(self.ListeNoeud[j].get_x()-self.ListeNoeud[k].get_x())>20:
-                if self.ListeNoeud[j].get_x()<self.ListeNoeud[k].get_x():
+                if self.ListeNoeud[j].get_y()<self.ListeNoeud[k].get_y():
                     a=Arete(self.ListeNoeud[j],self.ListeNoeud[k],True)
                 else:
                     a=Arete(self.ListeNoeud[k],self.ListeNoeud[j],True)
                 self.labyrin.append(a)
                 self.ListeNoeud[j].add_arete(self.labyrin[-1])
                 self.ListeNoeud[k].add_arete(self.labyrin[-1])
-        #Il faut ensuite tester si un noeud n'a pas Ã©tÃ© utilisÃ©....et le faire.
-
-    def viewerlaby(self):
+        #Il faut ensuite tester si un noeud n'a pas Ã©tÃ© utilisÃ©....et le détruire.
+        for noeud in self.ListeNoeud:
+            if len(noeud.get_aretes())==0:
+                self.ListeNoeud.remove(noeud)
+        #Maintenant on reclasse les listes des aretes pour chaque noeud
+        for noeud in self.ListeNoeud:
+            B=noeud.get_aretes()
+            A=sorted(B,key=lambda aret : aret.angle)
+            noeud.set_aretes(A)
+   def viewerlaby(self):
         """ Viewer qui permet de voir le labyrinthe dans son entier avec les autres joueurs: le joueur pourra
         avoir accÃ¨s Ã  cela si seulement
         il a l'objet magique qui le permet!"""
