@@ -94,3 +94,5 @@ jeu.add_joueur(joueur1)
 jeu.viewerlaby()
 joueur1.afficheur(jeu.labyrin,jeu.ListeNoeud,jeu.ListeJoueur)
 objets = ["", "", "", "", "pistolet", "couteau", "bombe", "bandage"]
+
+# test de Lucas
