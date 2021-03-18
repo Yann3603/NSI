@@ -295,7 +295,12 @@ class Player:
                 if event.type == pygame.QUIT:
                     cont=False
         pygame.quit()
-
+        
+        
+'''
+class Armes:
+    def __init__(self,
+'''
 
 class Sac:
     def __init__(self,taille_sac,plein):
