@@ -297,11 +297,16 @@ class Player:
         pygame.quit()
         
         
-'''
-class Armes(Objet):
-    def __init__(self,
-'''
 
+class Armes(Objet):
+    def Fusil(self, posX, posY, vitesse, direction, arete, type_balle):
+        get_x(self)
+        tirer()
+      
+        
+        
+        
+    
 class Sac:
     def __init__(self,taille_sac,plein):
         self.taille_sac = taille_sac
