@@ -298,7 +298,7 @@ class Player:
         
         
 '''
-class Armes:
+class Armes(Objet):
     def __init__(self,
 '''
 
