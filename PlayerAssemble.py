@@ -300,8 +300,8 @@ class Player:
 
 class Armes(Objet):
     def Fusil(self, posX, posY, vitesse, direction, arete, type_balle):
-        get_x(self)
-        tirer()
+        set_x(self, get_x(self))        
+        tirer(self, get_x(self))
       
         
         
