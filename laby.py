@@ -1,5 +1,5 @@
 from labyrinthe import *
-from player4 import *
+from player6 import *
 from random import sample, choice, randint
 from math import sqrt
 import pygame
