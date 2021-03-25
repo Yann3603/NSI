@@ -300,8 +300,17 @@ class Player:
 
 class Armes(Objet):
     def __init__(self, posX, posY, vitesse, direction, arete, type_balle):
+        keys=pygame.key.get_pressed()
+        if keys[K_1]:
+            Fusil()
+        
+    def Fusil():
         set_x(self, get_x(self))        
         tirer(self, get_x(self))
+       
+    
+
+       
       
         
         
