@@ -301,7 +301,7 @@ class Player:
 class Armes(Objet):
     def __init__(self, posX, posY, vitesse, direction, arete, type_balle):
         keys=pygame.key.get_pressed()
-        if keys[K_1]:
+        if keys[K_BACKSPACE]:
             Fusil()
         
     def Fusil():
